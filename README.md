@@ -12,6 +12,33 @@ Each monitor is its own island: it keeps its own set of workspaces, and nothing 
 
 > **Status: early.** Everything described here works, but it has been used by one person on one machine. Bug reports are genuinely useful right now.
 
+## The problem
+
+GNOME gives you exactly two multi-monitor modes, and neither is what most people want:
+
+| Mode | What happens |
+| --- | --- |
+| Workspaces on all displays | Switching a workspace switches **every** monitor at once |
+| Workspaces on primary only | Secondary monitors are **frozen** on one fixed set of windows |
+| **Workspace Islands** | Each monitor rotates through its **own** workspaces, independently |
+
+Truly independent per-monitor workspaces, macOS style, [have been requested for years](https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/5195) and do not exist natively.
+
+The closest existing extension is [Switch workspaces on active monitor](https://extensions.gnome.org/extension/2911/), which simulates the switch on whichever monitor is active and supports up to GNOME 48. This one targets 50, keeps per-monitor state that survives a logout, and integrates with the panel indicator, the overview and the touchpad gestures rather than only remapping a shortcut.
+
+## Before you install
+
+- [ ] **GNOME Shell 50**, on Wayland
+- [ ] **At least two monitors** — the extension only acts on non-primary ones, so a single display gives it nothing to do
+- [ ] **PaperWM disabled**, if you have it — the two fight over the same mutter setting with opposite values
+- [ ] `org.gnome.mutter workspaces-only-on-primary` set to `true`
+
+The last one is the setting everything rests on. The extension checks it, warns you if it is off, and offers a one-click fix in its preferences. To set it by hand:
+
+```bash
+gsettings set org.gnome.mutter workspaces-only-on-primary true
+```
+
 ## You are on the `dev` branch
 
 This branch is upstream [`main`](https://github.com/danielbernalo/gnome-workspace-islands) plus three pull requests that are open but not merged yet, combined so they can be tested together. It is for trying things out before they land, not a release.
@@ -32,7 +59,7 @@ What #19 fixes:
 
 ### Install the `dev` branch
 
-Check [Before you install](#before-you-install) first, then build from this branch:
+With the checklist above done, build from this branch:
 
 ```bash
 git clone -b dev https://github.com/KevenGoncalves/gnome-workspace-islands
@@ -69,33 +96,6 @@ Say that you are on `dev`, and which of the changes above the problem is about. 
 
 ```bash
 journalctl -f -o cat /usr/bin/gnome-shell | grep -E "workspace-islands|JS ERROR"
-```
-
-## The problem
-
-GNOME gives you exactly two multi-monitor modes, and neither is what most people want:
-
-| Mode | What happens |
-| --- | --- |
-| Workspaces on all displays | Switching a workspace switches **every** monitor at once |
-| Workspaces on primary only | Secondary monitors are **frozen** on one fixed set of windows |
-| **Workspace Islands** | Each monitor rotates through its **own** workspaces, independently |
-
-Truly independent per-monitor workspaces, macOS style, [have been requested for years](https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/5195) and do not exist natively.
-
-The closest existing extension is [Switch workspaces on active monitor](https://extensions.gnome.org/extension/2911/), which simulates the switch on whichever monitor is active and supports up to GNOME 48. This one targets 50, keeps per-monitor state that survives a logout, and integrates with the panel indicator, the overview and the touchpad gestures rather than only remapping a shortcut.
-
-## Before you install
-
-- [ ] **GNOME Shell 50**, on Wayland
-- [ ] **At least two monitors** — the extension only acts on non-primary ones, so a single display gives it nothing to do
-- [ ] **PaperWM disabled**, if you have it — the two fight over the same mutter setting with opposite values
-- [ ] `org.gnome.mutter workspaces-only-on-primary` set to `true`
-
-The last one is the setting everything rests on. The extension checks it, warns you if it is off, and offers a one-click fix in its preferences. To set it by hand:
-
-```bash
-gsettings set org.gnome.mutter workspaces-only-on-primary true
 ```
 
 ## Install
