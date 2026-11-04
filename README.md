@@ -12,6 +12,65 @@ Each monitor is its own island: it keeps its own set of workspaces, and nothing 
 
 > **Status: early.** Everything described here works, but it has been used by one person on one machine. Bug reports are genuinely useful right now.
 
+## You are on the `dev` branch
+
+This branch is upstream [`main`](https://github.com/danielbernalo/gnome-workspace-islands) plus three pull requests that are open but not merged yet, combined so they can be tested together. It is for trying things out before they land, not a release.
+
+| Pull request | What changes for you |
+| --- | --- |
+| [#16 — Fix overview animation](https://github.com/danielbernalo/gnome-workspace-islands/pull/16) | Entering and leaving the overview no longer makes windows on a secondary monitor snap by the height of the thumbnail strip. The strip fades in and out with the overview, and the thumbnails have rounded corners like the pages. |
+| [#17 — Sort Alt+Tab by most recent use](https://github.com/danielbernalo/gnome-workspace-islands/pull/17) | Alt+Tab goes back to the app you last used, even when it sits on another virtual workspace. The new **Alt+Tab order** preference brings back GNOME's own ordering. |
+| [#19 — Stop windows jumping and drags getting stuck](https://github.com/danielbernalo/gnome-workspace-islands/pull/19) | See below. |
+
+What #19 fixes:
+
+- **Rapid switching.** Pressing the shortcut again while a workspace is still sliding continues the slide to the new workspace. Before, windows zoomed in and out and you could end up on the wrong workspace.
+- **Following a window.** Picking a window from another workspace in Alt+Tab, the dash or a notification slides there cleanly, without the window zooming in underneath.
+- **Overview drag and drop.** After dropping a window on a thumbnail, the overview keeps its layout. Before, the windows went full size and stacked until you closed and reopened the overview. The drag also ends the moment you let go.
+- **Dropping from the primary monitor.** A window dragged from the primary monitor onto a secondary thumbnail now lands on that workspace instead of disappearing.
+- **Titlebar drags.** A window you drag onto a secondary monitor stays where you put it, even when its app usually lives on another workspace. Before, it was minimized out from under the pointer.
+
+### Install the `dev` branch
+
+Check [Before you install](#before-you-install) first, then build from this branch:
+
+```bash
+git clone -b dev https://github.com/KevenGoncalves/gnome-workspace-islands
+cd gnome-workspace-islands
+make pack
+gnome-extensions install --force workspace-islands@danielbernalo.github.io.shell-extension.zip
+```
+
+This replaces any installed version of Workspace Islands, since both use the same uuid. If you installed an earlier copy with `make install` (a symlink to a source checkout), run `make uninstall` from that checkout first, so the bundle doesn't land on top of the link. **Log out and back in**, then enable it if it is not already:
+
+```bash
+gnome-extensions enable workspace-islands@danielbernalo.github.io
+```
+
+If you are going to edit the code, use `make install` instead of `make pack`: it links `src/` into GNOME's extension folder, and changes take effect at your next login. `make doctor` tells you which kind of install you have.
+
+To pick up new commits later:
+
+```bash
+git pull
+make pack
+gnome-extensions install --force workspace-islands@danielbernalo.github.io.shell-extension.zip
+```
+
+Then log out and back in again. A running shell never reloads extension code.
+
+### Going back to stable
+
+Install the bundle from upstream [Releases](https://github.com/danielbernalo/gnome-workspace-islands/releases/latest) the same way, with `gnome-extensions install --force`, then log out and back in. Your workspace arrangement and preferences are kept. The **Alt+Tab order** setting is simply ignored by versions that do not have it.
+
+### Reporting problems
+
+Say that you are on `dev`, and which of the changes above the problem is about. Turn on **Debug logging** in preferences and include what this prints around the moment it happens:
+
+```bash
+journalctl -f -o cat /usr/bin/gnome-shell | grep -E "workspace-islands|JS ERROR"
+```
+
 ## The problem
 
 GNOME gives you exactly two multi-monitor modes, and neither is what most people want:
