@@ -75,6 +75,9 @@ const WORKSPACE_SWITCH_TIME = 250;
 /** Share of the monitor height the thumbnail strip may take. */
 const THUMBNAILS_HEIGHT_FRACTION = 0.11;
 
+/** Gap between the thumbnail strip and the pages, in logical pixels. */
+const THUMBNAILS_GAP = 16;
+
 /**
  * Floor for a thumbnail's corner radius, in logical pixels.
  *
@@ -698,7 +701,9 @@ class IslandsWorkspacesView extends ExtraWorkspaceView {
         // picker — which is exactly what ExtraWorkspaceView clamps the pages'
         // window animation to, so reservation and previews move in step.
         const openness = Math.min(Math.max(this._overviewAdjustment.value, 0), 1);
-        const reserved = Math.round(stripHeight * openness);
+        const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
+        const reserved = Math.round(
+            (stripHeight + THUMBNAILS_GAP * scaleFactor) * openness);
 
         const pagesBox = new Clutter.ActorBox();
         pagesBox.set_origin(0, reserved);
